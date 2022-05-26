@@ -2,14 +2,16 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>StartOnMount</key>
+	<true/>
 	<key>Label</key>
 	<string>gay.sarahuwu.ntfsremount</string>
+	<key>Program</key>
+	<string>/usr/local/bin/ntfs-3g</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>hello</string>
-		<string>world</string>
+		<string>/dev/disk0s3</string>
+		<string>/Volumes/Windows</string>
 	</array>
-	<key>KeepAlive</key>
-	<true/>
 </dict>
 </plist>
