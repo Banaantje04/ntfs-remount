@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+disks=($(diskutil list | grep -E '^ {3}\d+:.*disk\d+s' | sed 's/.* [KMGT]B *//'))
+diskAmount=${#disks[@]}
+
+for (( ; diskAmount-- ; )); do
+    uuid=$(diskutil info ${disks[$diskAmount]} | grep 'Disk / Partition UUID:' | cut -d : -f 2 | sed 's/^ *//')
+    if [[ $uuid == "D9D07274-930F-455E-B627-366FC60122E8" ]]; then
+        echo found windows!
+        echo it is on ${disks[$diskAmount]}
+    fi
+done
+
+
+#grep 'Disk / Partition UUID:' | cut -d : -f 2 | sed 's/^ *//'
+#"D9D07274-930F-455E-B627-366FC60122E8"
