@@ -1,19 +1,20 @@
 #!/usr/bin/env bash
 
-diskutil unmount /dev/disk0s3
-/usr/local/bin/ntfs-3g /dev/disk0s3 /Volumes/Windows
+availableDisks=($(diskutil list | grep -E '^ {3}\d+:.*disk\d+s' | sed 's/.* [KMGT]B *//'))
+diskAmount=${#availableDisks[@]}
 
-#disks=($(diskutil list | grep -E '^ {3}\d+:.*disk\d+s' | sed 's/.* [KMGT]B *//'))
-#diskAmount=${#disks[@]}
-#
-#for (( ; diskAmount-- ; )); do
-#    uuid=$(diskutil info ${disks[$diskAmount]} | grep 'Disk / Partition UUID:' | cut -d : -f 2 | #sed 's/^ *//')
-#    if [[ $uuid == "D9D07274-930F-455E-B627-366FC60122E8" ]]; then
-#        echo found windows!
-#        echo it is on ${disks[$diskAmount]}
-#    fi
-#done
+targetUuid=D9D07274-930F-455E-B627-366FC60122E8
 
+for (( ; diskAmount-- ; )); do
+    uuid=$(diskutil info ${availableDisks[$diskAmount]} | grep 'Disk / Partition UUID:' | cut -d : -f 2 | sed 's/^ *//')
+    if [[ $uuid == $targetUuid ]]; then
+        currentDisk=/dev/${availableDisks[$diskAmount]}
+        volumeName=$(diskutil info $currentDisk | grep 'Volume Name:' | cut -d : -f 2 | sed 's/^ *//')
+        break
+    fi
+done
 
-#grep 'Disk / Partition UUID:' | cut -d : -f 2 | sed 's/^ *//'
-#"D9D07274-930F-455E-B627-366FC60122E8"
+if ! mount | grep $currentDisk | grep macfuse &> /dev/null; then         #assume macfuse means it's not mounted by macOS's stock ntfs driver
+    diskutil unmount $currentDisk &> /dev/null
+    /usr/local/bin/ntfs-3g -o volname=$volumeName $currentDisk /Volumes/$volumeName
+fi
